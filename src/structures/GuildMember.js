@@ -78,6 +78,15 @@ class GuildMember extends Base {
     }
 
     if ('nick' in data) this.nickname = data.nick;
+    if ('avatar' in data) {
+      /**
+       * The guild member's avatar hash
+       * @type {?string}
+       */
+      this.avatar = data.avatar;
+    } else if (typeof this.avatar !== 'string') {
+      this.avatar = null;
+    }
     if ('joined_at' in data) this.joinedTimestamp = new Date(data.joined_at).getTime();
     if ('premium_since' in data) this.premiumSinceTimestamp = new Date(data.premium_since).getTime();
     if ('roles' in data) this._roles = data.roles;
@@ -126,6 +135,26 @@ class GuildMember extends Base {
     if (!Structures) Structures = require('../util/Structures');
     const VoiceState = Structures.get('VoiceState');
     return this.guild.voiceStates.cache.get(this.id) || new VoiceState(this.guild, { user_id: this.id });
+  }
+
+  /**
+   * A link to the member's guild avatar.
+   * @param {ImageURLOptions} [options={}] Options for the Image URL
+   * @returns {?string}
+   */
+  avatarURL({ format, size, dynamic } = {}) {
+    if (!this.avatar) return null;
+    return this.client.rest.cdn.GuildMemberAvatar(this.guild.id, this.id, this.avatar, format, size, dynamic);
+  }
+
+  /**
+   * A link to the member's guild avatar if they have one.
+   * Otherwise, a link to their {@link User#displayAvatarURL} will be returned.
+   * @param {ImageURLOptions} [options={}] Options for the Image URL
+   * @returns {string}
+   */
+  displayAvatarURL(options) {
+    return this.avatarURL(options) ?? this.user.displayAvatarURL(options);
   }
 
   /**
@@ -393,7 +422,7 @@ class GuildMember extends Base {
   }
 
   toJSON() {
-    return super.toJSON({
+    const json = super.toJSON({
       guild: 'guildID',
       user: 'userID',
       displayName: true,
@@ -402,6 +431,9 @@ class GuildMember extends Base {
       lastMessageID: false,
       roles: true,
     });
+    json.avatarURL = this.avatarURL();
+    json.displayAvatarURL = this.displayAvatarURL();
+    return json;
   }
 
   // These are here only for documentation purposes - they are implemented by TextBasedChannel

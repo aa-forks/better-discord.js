@@ -357,6 +357,7 @@ declare module 'better-discord.js' {
         Emoji: (emojiID: string, format: 'png' | 'gif') => string;
         Avatar: (userID: string | number, hash: string, format: 'default' | AllowedImageFormat, size: number) => string;
         Banner: (guildID: string | number, hash: string, format: AllowedImageFormat, size: number) => string;
+        GuildMemberAvatar: (guildId: string | number, memberId: string | number, hash: string, format: 'default' | AllowedImageFormat, size: number) => string;
         Icon: (userID: string | number, hash: string, format: 'default' | AllowedImageFormat, size: number) => string;
         AppIcon: (userID: string | number, hash: string, format: AllowedImageFormat, size: number) => string;
         AppAsset: (userID: string | number, hash: string, format: AllowedImageFormat, size: number) => string;
@@ -821,6 +822,7 @@ declare module 'better-discord.js' {
 
   export class GuildMember extends PartialTextBasedChannel(Base) {
     constructor(client: Client, data: object, guild: Guild);
+    public avatar: string | null;
     public readonly bannable: boolean;
     public deleted: boolean;
     public readonly displayColor: number;
@@ -842,10 +844,12 @@ declare module 'better-discord.js' {
     public readonly roles: GuildMemberRoleManager;
     public user: User;
     public readonly voice: VoiceState;
+    public avatarURL(options?: ImageURLOptions): string | null;
     public ban(options?: BanOptions): Promise<GuildMember>;
     public fetch(force?: boolean): Promise<GuildMember>;
     public createDM(force?: boolean): Promise<DMChannel>;
     public deleteDM(): Promise<DMChannel>;
+    public displayAvatarURL(options?: ImageURLOptions): string;
     public edit(data: GuildMemberEditData, reason?: string): Promise<GuildMember>;
     public hasPermission(
       permission: PermissionResolvable,
